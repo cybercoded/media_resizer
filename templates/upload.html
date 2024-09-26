@@ -2,8 +2,9 @@
 
 {% block content %}
 <!-- Form to upload an image -->
-<div style="width: 600px">
-    <form class="mb-5 card" method="post" enctype="multipart/form-data">
+
+<div class="d-flex align-items-center justify-content-center mt-5">
+    <form class="mb-5 card" style="width: 600px" method="post" enctype="multipart/form-data">
         {% csrf_token %}
         <div class="card-body">
             <div onclick="triggerFileUpload()" role="button" id="choose-first-image" class="bg-light p-5 text-center" style="height: 300px; border: 2px dashed #337ab7; display: flex; align-items: center; justify-content: center; flex-direction: column;">

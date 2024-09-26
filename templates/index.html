@@ -1,99 +1,176 @@
-{% extends 'base.html' %}
+<!DOCTYPE html>
+<html lang="en">
+<head>{% load static %}
 
-{% block title %}Media Image Resizer{% endblock %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Media Resizer</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        
+        .service-section {
+            background-color: #f8f9fa;
+            padding: 50px 0;
+        }
+        .why-us-section {
+            background-color: #e9ecef;
+            padding: 50px 0;
+        }
+        .contact-section {
+            background-color: #343a40;
+            color: white;
+            padding: 50px 0;
+        }
+        .footer {
+            background-color: #212529;
+            color: white;
+            padding: 20px 0;
+        }
+        /* Custom styles for the navbar and intro */
+        .bg-image {
+            background-image: url('{% static "background.jpg" %}');
+            background-size: cover;
+            background-position: center;
+            color: white;
+            padding: 0; /* Adjust padding as needed */
+        }
+        .navbar {
+            background: transparent; /* Make navbar background transparent */
+        }
+        .navbar-brand img {
+            width: 50px;
+            height: 50px;
+        }
+        .intro h1 {
+            font-size: 2.5rem;
+            margin-top: 20px;
+        }
+        .intro p {
+            font-size: 1.25rem;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
 
-
-{% block content %}
-<!-- Hero Section -->
-<section class="text-center my-5">
-    <div class="container">
-        <h1>Perfect Quality Image Resizing</h1>
-        <p class="lead">The best online image resizer to resize your images at the highest quality.</p>
-        <a href="{% url 'upload' %}" class="btn btn-lg btn-primary">Get Started</a>
-    </div>
-</section>
-
-<!-- Our Services -->
-<section class="service-section text-center mb-5">
-    <div class="container">
-        <h2>Our Services</h2>
-        <div class="row mt-4">
-            <div class="col-lg-4 col-md-6 p-5 col-sm-12 mb-4">
-                <i class="fas fa-images fa-2x"></i>
-                <h3>Perfect quality</h3>
-                <p>The best online image resizer to resize your images at the highest quality.</p>
-            </div>
-            <div class="col-lg-4 col-md-6 p-5 col-sm-12 mb-4">
-                <i class="fas fa-bolt fa-2x"></i>
-                <h3>Lightning Fast</h3>
-                <p>Resize your images in seconds with our cloud-hosted tool!</p>
-            </div>
-            <div class="col-lg-4 col-md-6 p-5 col-sm-12 mb-4">
-                <i class="fas fa-cogs fa-2x"></i>
-                <h3>Easy To Use</h3>
-                <p>Upload your image, enter the target size, and resize in a few clicks!</p>
-            </div>
-            <div class="col-lg-4 col-md-6 p-5 col-sm-12 mb-4">
-                <i class="fas fa-globe fa-2x"></i>
-                <h3>Works Anywhere</h3>
-                <p>Browser-based, works on any platform (Windows, Mac, Linux).</p>
-            </div>
-            <div class="col-lg-4 col-md-6 p-5 col-sm-12 mb-4">
-                <i class="fas fa-pencil-alt fa-2x"></i>
-                <h3>It's free</h3>
-                <p>This service is 100% free! There is no software to install, registrations, or watermarks.</p>
-            </div>
-            <div class="col-lg-4 col-md-6 p-5 col-sm-12 mb-4">
-                <i class="fas fa-lock fa-2x"></i>
-                <h3>Privacy Guaranteed</h3>
-                <p>Images are uploaded securely and deleted after 6 hours.</p>
+<div class="bg-image">
+    <nav class="navbar navbar-expand-lg navbar-light">
+        <div class="container">
+            <a class="navbar-brand" href="{% url 'index' %}">
+                <div class="d-flex">
+                    <img src="{% static 'icon.png' %}" alt="Media Resizer Logo">
+                    <div class="font-weight-bold text-white m-1" style="line-height: 20px">
+                        <div>Media</div>
+                        <div>Resizer</div>
+                    </div>
+                </div>
+            </a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ml-auto">
+                    <li class="nav-item">
+                        <a class="nav-link btn btn-primary text-white" href="{% url 'upload' %}">Convert Now</a>
+                    </li>
+                    {% if user.is_authenticated %}
+                        <li class="nav-item">
+                            <a class="nav-link font-weight-bold text-white" href="{% url 'logout' %}">Logout</a>
+                        </li>
+                    {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link font-weight-bold text-white" href="{% url 'login' %}">Login</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link font-weight-bold text-white" href="{% url 'register' %}">Register</a>
+                        </li>
+                    {% endif %}
+                </ul>
             </div>
         </div>
-    </div>
-</section>
+    </nav>
 
-<!-- Why Us -->
-<section class="why-us-section text-center mb-5">
-    <div class="container">
-        <h2>Why Choose Us?</h2>
-        <p>We've resized millions of images since 2012 for free!</p>
-        <ul class="list-unstyled">
-            <li>No software to install, no registrations required, and no watermarks.</li>
-            <li>100% Free service with top-notch quality and privacy.</li>
-        </ul>
+    <div class="intro text-center p-5">
+        <h1>Perfect Quality Image Resizing</h1>
+        <p class="lea">The best online image resizer to resize your images at the highest quality.</p>
+        <a href="{% url 'upload' %}" class="btn btn-lg btn-primary">Get Started</a>
     </div>
-</section>
+</div>
 
-<!-- Contact Us -->
-<section class="contact-section text-center">
-    <div class="container">
-        <h2>Contact Us</h2>
-        <p>For any inquiries or feedback, feel free to reach out!</p>
-        <ul class="list-unstyled">
-            <li>Email: support@imageresizer.com</li>
-            <li>Phone: +123 456 7890</li>
-        </ul>
-    </div>
-</section>
+<div class="container mt-5">
+    <!-- Our Services -->
+    <section class="service-section text-center mb-5">
+        <div class="container">
+            <h2>Our Services</h2>
+            <div class="row mt-4">
+                <div class="col-lg-4 col-md-6 p-5 col-sm-12 mb-4">
+                    <i class="fas fa-images fa-2x"></i>
+                    <h3>Perfect quality</h3>
+                    <p>The best online image resizer to resize your images at the highest quality.</p>
+                </div>
+                <div class="col-lg-4 col-md-6 p-5 col-sm-12 mb-4">
+                    <i class="fas fa-bolt fa-2x"></i>
+                    <h3>Lightning Fast</h3>
+                    <p>Resize your images in seconds with our cloud-hosted tool!</p>
+                </div>
+                <div class="col-lg-4 col-md-6 p-5 col-sm-12 mb-4">
+                    <i class="fas fa-cogs fa-2x"></i>
+                    <h3>Easy To Use</h3>
+                    <p>Upload your image, enter the target size, and resize in a few clicks!</p>
+                </div>
+                <div class="col-lg-4 col-md-6 p-5 col-sm-12 mb-4">
+                    <i class="fas fa-globe fa-2x"></i>
+                    <h3>Works Anywhere</h3>
+                    <p>Browser-based, works on any platform (Windows, Mac, Linux).</p>
+                </div>
+                <div class="col-lg-4 col-md-6 p-5 col-sm-12 mb-4">
+                    <i class="fas fa-pencil-alt fa-2x"></i>
+                    <h3>It's free</h3>
+                    <p>This service is 100% free! There is no software to install, registrations, or watermarks.</p>
+                </div>
+                <div class="col-lg-4 col-md-6 p-5 col-sm-12 mb-4">
+                    <i class="fas fa-lock fa-2x"></i>
+                    <h3>Privacy Guaranteed</h3>
+                    <p>Images are uploaded securely and deleted after 6 hours.</p>
+                </div>
+            </div>
+        </div>
+    </section>
 
-<style>
-    .service-section {
-        background-color: #f8f9fa;
-        padding: 50px 0;
-    }
-    .why-us-section {
-        background-color: #e9ecef;
-        padding: 50px 0;
-    }
-    .contact-section {
-        background-color: #343a40;
-        color: white;
-        padding: 50px 0;
-    }
-    .footer {
-        background-color: #212529;
-        color: white;
-        padding: 20px 0;
-    }
-</style>
-{% endblock %}
+    <!-- Why Us -->
+    <section class="why-us-section text-center mb-5">
+        <div class="container">
+            <h2>Why Choose Us?</h2>
+            <p>We've resized millions of images since 2012 for free!</p>
+            <ul class="list-unstyled">
+                <li>No software to install, no registrations required, and no watermarks.</li>
+                <li>100% Free service with top-notch quality and privacy.</li>
+            </ul>
+        </div>
+    </section>
+
+    <!-- Contact Us -->
+    <section class="contact-section text-center">
+        <div class="container">
+            <h2>Contact Us</h2>
+            <p>For any inquiries or feedback, feel free to reach out!</p>
+            <ul class="list-unstyled">
+                <li>Email: support@imageresizer.com</li>
+                <li>Phone: +123 456 7890</li>
+            </ul>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer text-center">
+        <div class="container">
+            <p>&copy; 2024 Media Resizer. All rights reserved.</p>
+        </div>
+    </footer>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>
