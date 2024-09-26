@@ -6,7 +6,7 @@
     <form class="mb-5 card" method="post" enctype="multipart/form-data">
         {% csrf_token %}
         <div class="card-body">
-            <div onclick="triggerFileUpload()" id="choose-first-image" class="bg-light p-5 text-center" style="height: 300px; border: 2px dashed #337ab7; display: flex; align-items: center; justify-content: center; flex-direction: column;">
+            <div onclick="triggerFileUpload()" role="button" id="choose-first-image" class="bg-light p-5 text-center" style="height: 300px; border: 2px dashed #337ab7; display: flex; align-items: center; justify-content: center; flex-direction: column;">
                 <div>
                     <i class="fas fa-image fa-3x"></i>
                 </div>
@@ -205,14 +205,14 @@
                         <label for="width${i + 1}">Width (px):</label>
                         <div class="d-flex">
                             <input type="range" id="rangeWidth${i + 1}" value="${size.width}" min="10" max="600" oninput="updateImageSize('image${i + 1}', 'width', this.value); document.getElementById('width${i + 1}').value = this.value;" />
-                            <input type="number" class="input-value" id="width${i + 1}" value="${size.width}" min="10" max="600" oninput="updateImageSize('image${i + 1}', 'width', this.value);" />
+                            <input type="number" class="input-value" id="width${i + 1}" value="${size.width}" min="10" oninput="updateImageSize('image${i + 1}', 'width', this.value);" />
                         </div>
                     </div>
                     <div>
                         <label for="height${i + 1}">Height (px):</label>
                         <div class="d-flex">
                             <input type="range" id="rangeHeight${i + 1}" value="${size.height}" min="10" max="600" oninput="updateImageSize('image${i + 1}', 'height', this.value); document.getElementById('height${i + 1}').value = this.value;" />
-                            <input type="number" class="input-value" id="height${i + 1}" value="${size.height}" min="10" max="600" oninput="updateImageSize('image${i + 1}', 'height', this.value);" />
+                            <input type="number" class="input-value" id="height${i + 1}" value="${size.height}" min="10" oninput="updateImageSize('image${i + 1}', 'height', this.value);" />
                         </div>
                     </div>
                 </div>

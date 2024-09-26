@@ -3,7 +3,7 @@ from django.contrib.auth import authenticate, login as auth_login, logout as aut
 from django.contrib.auth.models import User
 from .models import OriginalImage, ResizedImage, Settings
 from django.core.files.storage import FileSystemStorage
-from PIL import Image
+from PIL import Image, ExifTags
 import os
 import zipfile
 from django.http import HttpResponse
@@ -74,18 +74,38 @@ def upload(request):
         # Create an original image linked to the current user
         original_image = OriginalImage.objects.create(filename=file.name, user=request.user)
 
+        # Open the image
         image = Image.open(fs.path(original_filename))
+
+        # Check for EXIF data and correct the orientation
+        try:
+            for orientation in ExifTags.TAGS.keys():
+                if ExifTags.TAGS[orientation] == 'Orientation':
+                    break
+            exif = image._getexif()
+            if exif is not None:
+                orientation_value = exif.get(orientation)
+                if orientation_value is not None:
+                    if orientation_value == 3:
+                        image = image.rotate(180, expand=True)
+                    elif orientation_value == 6:
+                        image = image.rotate(270, expand=True)
+                    elif orientation_value == 8:
+                        image = image.rotate(90, expand=True)
+        except (AttributeError, KeyError, IndexError):
+            # No EXIF data, or orientation not found
+            pass
+
         sizes = Settings.objects.all()
 
         for size in sizes:
-            # Convert the image to RGB if it has an alpha channel
-            if image.mode in ("RGBA", "LA") or (image.mode == "P" and "transparency" in image.info):
-                image = image.convert("RGB")
-
-            resized_image = image.resize((size.width, size.height), Image.LANCZOS)
+            # Maintain the aspect ratio when resizing
+            image.thumbnail((size.width, size.height), Image.LANCZOS)
             resized_filename = f"{file.name}-{size.device}.jpg"
             resized_path = os.path.join('uploads/resized-images/', resized_filename)
-            resized_image.save(resized_path, format='JPEG')  # Specify JPEG format
+            image.save(resized_path, format='JPEG')  # Specify JPEG format
+            
+            # Create a resized image object
             ResizedImage.objects.create(original=original_image, filename=resized_filename, device=size.device)
 
         messages.success(request, 'Image uploaded and resized successfully!')
