@@ -14,7 +14,7 @@ from django.contrib import messages
 def home(request):
     if request.user.is_authenticated:
         return redirect('dashboard')
-    return render(request, 'base.html')
+    return render(request, 'index.html')
 
 def register(request):
     if request.method == 'POST':
