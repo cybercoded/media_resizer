@@ -1,0 +1,305 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<!-- Form to upload an image -->
+<form class="mb-5 card" method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="card-header">
+        <input type="file" name="file" method="post" id="imageUpload" class="form-control-file" accept="image/*" onchange="loadImage(event)" required />
+    </div>
+    <div class="card-body">
+        <div class="swiper-container">
+            <div class="swiper-wrapper" id="swiperWrapper">
+                <!-- Dynamic image slides will be added here -->
+            </div>
+
+            <div class="swiper-pagination" style="left: 45%; width: 50px"></div>
+
+            <!-- Navigation buttons -->
+            <div class="swiper-button-next"></div>
+            <div class="swiper-button-prev"></div>
+        </div>
+    </div>
+    <div class="card-footer">
+        {% if not user.is_authenticated %}
+        <div class="alert alert-info alert-dismissible fade show" role="alert">
+            <strong>Notice:</strong> Creating an account on our website allows you to access more of our conversion services with higher quality and additional features! 
+            <a href="{% url 'register' %}" class="alert-link">Sign up today</a> to enhance your experience.
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>        
+        {% endif %}
+        {% if user.is_authenticated %}
+            <button type="submit" class="btn btn-primary">Upload</button>
+        {% else %}
+            <button type="button" class="btn btn-primary" onclick="downloadAllImages()">Download All as ZIP</button>
+        {% endif %}
+        <button type="reset" class="btn btn-secondary">Cancel</button>
+    </div>
+</form>
+
+<style>
+    .swiper-container {
+        width: 100%;
+        height: 600px;
+        background-color: #6c757d;
+        overflow: hidden;
+        position: relative;
+        margin: auto;
+    }
+
+    .swiper-slide {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        height: 100%;
+        width: auto;
+    }
+
+    .swiper-slide img {
+        max-width: 100%;
+        max-height: 80%;
+        object-fit: contain;
+        margin: auto;
+    }
+
+    .controls {
+        background-color: #f8f9fa;
+        padding: 10px;
+        width: 100%;
+    }
+
+    .input-value {
+        width: 55px;
+        border: none;
+        border-bottom: 1px solid #337ab7;
+    }
+
+    .swiper-button-next, .swiper-button-prev {
+        color: white;
+    }
+
+    .swiper-button-next, .swiper-button-prev {
+        color: white;
+        background-color: rgba(0, 0, 0, 0.5); /* Fade background */
+        border-radius: 5px;
+        padding: 30px 20px;
+        z-index: 10; /* Ensure they are on top */
+    }
+
+    .swiper-button-next:hover, .swiper-button-prev:hover {
+        background-color: rgba(0, 0, 0, 0.8); /* Darker on hover */
+    }
+
+    .download-button {
+        background-color: #007bff;
+        color: white;
+        border: none;
+        padding: 5px 10px;
+        border-radius: 5px;
+        cursor: pointer; /* Pointer cursor */
+        text-align: center;
+        margin: 10px; /* Margin for spacing */
+        text-decoration: none; /* Remove underline */
+    }
+
+    .swiper-slide h5 {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        background-color: rgba(0, 0, 0, 0.5);
+        color: white;
+        padding: 5px;
+        border-radius: 4px;
+    }    
+</style>
+
+<script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+<script>
+    let swiper;
+    const imageSrcs = []; // Array to store image sources for downloading
+    const imageDimensions = []; // Store image dimensions
+
+    document.addEventListener('DOMContentLoaded', function () {
+        swiper = new Swiper('.swiper-container', {
+            direction: 'horizontal',
+            loop: true,
+            pagination: {
+                el: '.swiper-pagination',
+                clickable: true,
+            },
+            navigation: {
+                nextEl: '.swiper-button-next',
+                prevEl: '.swiper-button-prev',
+            },
+        });
+
+        // Event listener for the Cancel button (form reset) to clear the slider
+        document.querySelector('form').addEventListener('reset', function () {
+            // Clear the swiper wrapper content to remove all slides
+            document.getElementById('swiperWrapper').innerHTML = '';
+            imageSrcs.length = 0; // Clear image source array
+            imageDimensions.length = 0; // Clear image dimensions array
+            swiper.update(); // Refresh the swiper instance to reflect changes
+        });
+    });
+
+    function loadImage(event) {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const imgElement = new Image();
+                imgElement.src = e.target.result;
+                imgElement.onload = function() {
+                    addImageSlides(imgElement.src); // Pass image source instead of the whole image element
+                };
+            };
+            reader.readAsDataURL(file);
+        }
+    }
+
+    function addImageSlides(imgSrc) {
+        // Clear previous slides if needed
+        document.getElementById('swiperWrapper').innerHTML = '';
+        
+        // Define the device types and their corresponding sizes
+        const sizes = [
+            { id: 'mobile', label: 'Mobile', width: {{ mobile_width }}, height: {{ mobile_height }} },
+            { id: 'tablet', label: 'Tablet', width: {{ tablet_width }}, height: {{ tablet_height }} },
+            { id: 'desktop', label: 'Desktop', width: {{ desktop_width }}, height: {{ desktop_height }} }
+        ];
+
+        sizes.forEach((size, i) => {
+            const slide = document.createElement('div');
+            slide.classList.add('swiper-slide');
+        
+            // Create image element
+            const img = document.createElement('img');
+            img.src = imgSrc;
+            img.id = 'image' + (i + 1);
+            img.style.width = size.width + 'px';
+            img.style.height = size.height + 'px';
+        
+            // Add image source to array for downloading
+            imageSrcs.push(imgSrc);
+            imageDimensions.push({ width: size.width, height: size.height });
+
+            // Create label for the device type
+            const label = document.createElement('h5');
+            label.innerText = size.label;
+            label.style.position = 'absolute';
+            label.style.top = '10px';
+            label.style.left = '10px';
+            label.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
+            label.style.color = 'white';
+            label.style.padding = '5px';
+
+            // Create download link
+            const download = document.createElement('a');
+            download.innerText = 'Download';
+            download.className = 'download-button';
+            download.onclick = () => downloadImageAtSize(imgSrc, size.width, size.height);
+
+            // Create controls for width and height
+            const controls = document.createElement('div');
+            controls.classList.add('controls');
+            controls.innerHTML = `
+            <div class="controls bg-light w-100 p-2">
+                <div class="d-flex justify-content-between bg-light">
+                    <div>
+                        <label for="width${i + 1}">Width (px):</label>
+                        <div class="d-flex">
+                            <input type="range" id="rangeWidth${i + 1}" value="${size.width}" min="10" max="600" oninput="updateImageSize('image${i + 1}', 'width', this.value); document.getElementById('width${i + 1}').value = this.value;" />
+                            <input type="number" class="input-value" id="width${i + 1}" value="${size.width}" min="10" max="600" oninput="updateImageSize('image${i + 1}', 'width', this.value);" />
+                        </div>
+                    </div>
+                    <div>
+                        <label for="height${i + 1}">Height (px):</label>
+                        <div class="d-flex">
+                            <input type="range" id="rangeHeight${i + 1}" value="${size.height}" min="10" max="600" oninput="updateImageSize('image${i + 1}', 'height', this.value); document.getElementById('height${i + 1}').value = this.value;" />
+                            <input type="number" class="input-value" id="height${i + 1}" value="${size.height}" min="10" max="600" oninput="updateImageSize('image${i + 1}', 'height', this.value);" />
+                        </div>
+                    </div>
+                </div>
+            </div>`;
+
+            // Append the label, image, download button, and controls to the slide
+            slide.appendChild(label);
+            slide.appendChild(img);
+            slide.appendChild(download); // Append the download button
+            slide.appendChild(controls);
+            document.getElementById('swiperWrapper').appendChild(slide);
+        });
+
+        // Update the swiper instance with new slides
+        swiper.update();
+    }
+
+    function updateImageSize(imgId, dimension, value) {
+        const img = document.getElementById(imgId);
+        if (dimension === 'width') {
+            img.style.width = value + 'px';
+        } else if (dimension === 'height') {
+            img.style.height = value + 'px';
+        }
+    }
+
+    function downloadImageAtSize(imgSrc, width, height) {
+        const img = new Image();
+        img.src = imgSrc;
+
+        img.onload = function() {
+            const canvas = document.createElement('canvas');
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+
+            // Draw the image to the canvas
+            ctx.drawImage(img, 0, 0, width, height);
+
+            // Convert canvas to blob and trigger download
+            canvas.toBlob(function(blob) {
+                saveAs(blob, 'downloaded_image.png');
+            }, 'image/png');
+        };
+    }
+
+    function downloadAllImages() {
+        const zip = new JSZip();
+        const imgFolder = zip.folder("images");
+
+        // Loop through image sources and add them to the ZIP
+        imageSrcs.forEach((imgSrc, index) => {
+            const { width, height } = imageDimensions[index];
+            const img = new Image();
+            img.src = imgSrc;
+
+            img.onload = function() {
+                const canvas = document.createElement('canvas');
+                canvas.width = width;
+                canvas.height = height;
+                const ctx = canvas.getContext('2d');
+                
+                // Draw the image to the canvas
+                ctx.drawImage(img, 0, 0, width, height);
+
+                // Convert canvas to blob and add to zip
+                canvas.toBlob(function(blob) {
+                    imgFolder.file(`image${index + 1}.png`, blob);
+                    if (index === imageSrcs.length - 1) {
+                        // Generate the ZIP file after the last image is added
+                        zip.generateAsync({ type: "blob" }).then(content => {
+                            saveAs(content, "images.zip");
+                        });
+                    }
+                }, 'image/png');
+            };
+        });
+    }
+</script>
+{% endblock %}

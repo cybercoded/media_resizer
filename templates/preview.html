@@ -1,0 +1,123 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<!-- Form to upload an image -->
+<div class="mb-5 card">
+    {% csrf_token %}
+    <div>
+        <div class="swiper-container">
+            <div class="swiper-wrapper" id="swiperWrapper">
+                <!-- Dynamic image slides will be added here -->
+                {% for resized_image in resized_images %}
+                <div class="swiper-slide">
+                    <img src="{{ '/uploads/resized-images/'|add:resized_image.filename }}" alt="{{ resized_image.filename }}">
+                    <h5>{{ resized_image.device}}</h5>
+                    <a class="download-button" href="{{ '/uploads/resized-images/'|add:resized_image.filename }}" download="{{ '/uploads/resized-images/'|add:resized_image.filename }}">Download</a>
+                </div>
+                {% endfor %}
+            </div>
+
+            <div class="swiper-pagination" style="left: 45%; width: 50px"></div>
+
+            <!-- Navigation buttons -->
+            <div class="swiper-button-next"></div>
+            <div class="swiper-button-prev"></div>
+        </div>
+    </div>
+    <div class="card-footer">
+        <a href="{% url 'download_all_resized_images' id %}" type="button" class="btn btn-primary">Download as zip</a>
+        <a type="button" href="/dashboard" class="btn btn-secondary">Cancel</a>
+    </div>
+</div>
+
+<style>
+    .swiper-container {
+        width: 100%;
+        height: 600px;
+        background-color: #6c757d;
+        overflow: hidden;
+        position: relative;
+        margin: auto;
+    }
+
+    .download-button {
+        background-color: #007bff;
+        color: white;
+        border: none;
+        padding: 5px 10px;
+        border-radius: 5px;
+        cursor: pointer; /* Pointer cursor */
+        text-align: center;
+        margin: 10px; /* Margin for spacing */
+        text-decoration: none; /* Remove underline */
+    }
+
+    .swiper-slide {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        height: 100%;
+        width: auto;
+    }
+
+    .swiper-slide img {
+        max-width: 100%;
+        max-height: 80%;
+        object-fit: contain;
+        margin: auto;
+    }
+
+    .controls {
+        background-color: #f8f9fa;
+        padding: 10px;
+        width: 100%;
+    }
+
+    .input-value {
+        width: 55px;
+        border: none;
+        border-bottom: 1px solid #337ab7;
+    }
+
+    .swiper-button-next, .swiper-button-prev {
+        color: white;
+        background-color: rgba(0, 0, 0, 0.5); /* Fade background */
+        border-radius: 5px;
+        padding: 30px 20px;
+        z-index: 10; /* Ensure they are on top */
+    }
+
+    .swiper-button-next:hover, .swiper-button-prev:hover {
+        background-color: rgba(0, 0, 0, 0.8); /* Darker on hover */
+    }
+
+    .swiper-slide h5 {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        background-color: rgba(0, 0, 0, 0.5);
+        color: white;
+        padding: 5px;
+        border-radius: 4px;
+    }
+</style>
+
+<script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        let swiper = new Swiper('.swiper-container', {
+            direction: 'horizontal',
+            loop: true,
+            pagination: {
+                el: '.swiper-pagination',
+                clickable: true,
+            },
+            navigation: {
+                nextEl: '.swiper-button-next',
+                prevEl: '.swiper-button-prev',
+            },
+        });
+    });
+</script>
+{% endblock %}
