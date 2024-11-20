@@ -23,11 +23,13 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-q+h_f9)$7*w^a7*n_m^vdjcx1#ck!yv8q5$_1$9=a(+#h-xfas'
+# SECRET_KEY = os.getenv('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
+# DEBUG = os.getenv('DEBUG')
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -79,7 +81,7 @@ WSGI_APPLICATION = 'media_resizer.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'database.db',
+        'NAME': str(BASE_DIR / 'database.db'),  # Convert Path to string
     }
 }
 
@@ -119,10 +121,12 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
 # Set static and media file directories
-STATIC_URL = '/statics/'
-MEDIA_URL = '/uploads/'
-MEDIA_ROOT = BASE_DIR / 'uploads/'
+# Set static and media file directories
+STATIC_ROOT =  '/static/'  # Absolute path where collected static files will be stored
+STATIC_URL =  '/static/'  # URL path to serve static files
 
+MEDIA_URL = '/uploads/'  # URL path to access media files
+MEDIA_ROOT = BASE_DIR / 'uploads/'  # Directory to store media files
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field

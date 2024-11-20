@@ -3,6 +3,13 @@
 {% block title %}Dashboard{% endblock %}
 
 {% block content %}
+<style>
+    .text-truncate {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+</style>
 
 <div class="d-flex align-items-center justify-content-center mt-5">
     <div style="width: 600px;" class="card">
@@ -42,18 +49,27 @@
             <div class="bg-light d-flex justify-content-between align-items-center p-2 mb-2" role="button">
                 <a href="{% url 'preview' original_image.id %}" style="flex-grow: 1;">
                     <img src="{{ '/uploads/original-images/'|add:original_image.filename }}" class="img-thumbnail" alt="{{ original_image.filename }}" width="100px" height="100px">
-                    <span class="font-weight-bold">{{ original_image.filename }}</span>
+                </a>
+                <a href="{% url 'preview' original_image.id %}" class="font-weight-bold m-2">
+                    {{ original_image.filename }}
                 </a>
                 <button class="btn btn-danger" onClick="delete_message(this)" data-id="{{ original_image.id }}">
                     <i class="fas fa-trash"></i>
                 </button>
             </div>
+            {% endfor %}
+
+            {% if original_images|length == 0 %}
+                <div class="text-center mt-4">
+                    <a href="{% url 'upload' %}" class="btn btn-primary">Convert Now</a>
+                </div>
+            {% endif %}
         </div>
     </div>
 </div>
-{% endfor %}
 
-<script>      
+
+<script>
     function delete_message(this_) {
         const imageId = $(this_).data('id');
         Swal.fire({
@@ -75,5 +91,3 @@
 </script>
 
 {% endblock %}
-
-

@@ -24,7 +24,7 @@
             </div>
         </div>
         <div class="card-footer">
-            <a href="{% url 'download_all_resized_images' id %}" type="button" class="btn btn-primary">Download as zip</a>
+            <button id="downloadZipButton" type="button" class="btn btn-primary">Download all as zip</button>
             <a type="button" href="/dashboard" class="btn btn-secondary">Cancel</a>
         </div>
     </div>
@@ -104,6 +104,9 @@
 </style>
 
 <script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.7.1/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         let swiper = new Swiper('.swiper-container', {
@@ -117,6 +120,31 @@
                 nextEl: '.swiper-button-next',
                 prevEl: '.swiper-button-prev',
             },
+        });
+
+        document.getElementById('downloadZipButton').addEventListener('click', function() {
+            let zip = new JSZip();
+            
+            // Create a folder for the zip
+            let imagesFolder = zip.folder("resized_images");
+
+            // Get all images
+            let images = document.querySelectorAll('.swiper-slide img');
+            images.forEach(function(img) {
+                let imgUrl = img.src;  // URL of the resized image
+                let filename = img.src.split('/').pop(); // Extract the filename
+
+                // Create a folder with the original image name inside the zip
+                let imgFolder = imagesFolder.folder(filename.replace(/\.[^/.]+$/, ""));  // Use the filename as folder name (without extension)
+
+                // Add the image directly to the folder with its filename
+                imgFolder.file(filename, imgUrl, { binary: true });
+            });
+
+            // Create the zip file and trigger download when all images are added
+            zip.generateAsync({ type: "blob" }).then(function(content) {
+                saveAs(content, "resized_images.zip");
+            });
         });
     });
 </script>
