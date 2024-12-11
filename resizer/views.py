@@ -66,7 +66,7 @@ def upload(request):
         if not request.user.is_authenticated:
             messages.warning(request, 'You must be logged in to upload your files to the server')
             return redirect('login')
-        
+
         file = request.FILES['file']
         fs = FileSystemStorage()
         original_filename = fs.save('original-images/' + file.name, file)
@@ -76,6 +76,10 @@ def upload(request):
 
         # Open the image
         image = Image.open(fs.path(original_filename))
+
+        # Ensure the image is in RGB mode for saving as JPEG
+        if image.mode != 'RGB':
+            image = image.convert('RGB')
 
         # Check for EXIF data and correct the orientation
         try:
@@ -103,14 +107,17 @@ def upload(request):
             image.thumbnail((size.width, size.height), Image.LANCZOS)
             resized_filename = f"{file.name}-{size.device}.jpg"
             resized_path = os.path.join('uploads/resized-images/', resized_filename)
+            # Ensure RGB conversion before saving
+            if image.mode != 'RGB':
+                image = image.convert('RGB')
             image.save(resized_path, format='JPEG')  # Specify JPEG format
-            
+
             # Create a resized image object
             ResizedImage.objects.create(original=original_image, filename=resized_filename, device=size.device)
 
         messages.success(request, 'Image uploaded and resized successfully!')
         return redirect('dashboard')
-    
+
     return render(request, 'upload.html', context)
 
 def dashboard(request):
