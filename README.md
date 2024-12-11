@@ -5,7 +5,7 @@
 # ![Dashboard](https://github.com/cybercoded/media_resizer/blob/main/dashboard.png) 
 
 
-# ![Video](https://github.com/cybercoded/media_resizer/blob/main/screenshots/Screen-Recording.mov) 
+# ![Video](https://github.com/cybercoded/media_resizer/blob/main/screenshots/screen-record.gif) 
 
 
 how to install
